@@ -1,0 +1,9 @@
+fastapi
+fastmcp
+uvicorn
+langchain
+langchain-openai>=1.7.4
+openai>=2.45.0,<4
+python-dotenv
+bleach>=6.0
+markdown-it-py>=3.0,<5

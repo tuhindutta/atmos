@@ -1,0 +1,121 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="theme-color" content="#10131b">
+    <title>Atmos Agent</title>
+    <link rel="stylesheet" href="/static/styles.css">
+  </head>
+  <body>
+    <div class="app-shell">
+      <aside class="sidebar" aria-label="Conversation sidebar">
+        <div class="brand">
+          <div class="brand-mark" aria-hidden="true">A</div>
+          <div>
+            <div class="brand-name">Atmos</div>
+            <div class="brand-caption">Personal agent</div>
+          </div>
+        </div>
+        <button id="new-chat" class="new-chat" type="button">
+          <span aria-hidden="true">＋</span> New conversation
+        </button>
+        <div class="section-label">RECENT</div>
+        <label class="sr-only" for="thread-search">Search conversations</label>
+        <input
+          id="thread-search"
+          class="thread-search"
+          type="search"
+          placeholder="Search conversations"
+          autocomplete="off"
+        >
+        <nav id="thread-list" class="thread-list" aria-label="Recent conversations"></nav>
+        <div class="sidebar-footer">
+          <span class="status-dot" aria-hidden="true"></span>
+          <span>Private · running locally</span>
+        </div>
+      </aside>
+
+      <main class="main-panel">
+        <header class="topbar">
+          <div class="mobile-brand">
+            <span class="brand-mark" aria-hidden="true">A</span>
+            <span>Atmos</span>
+          </div>
+          <div id="active-thread-label" class="active-thread-label">New conversation</div>
+          <div class="topbar-actions">
+            <button id="manage-memories" class="memory-button" type="button">Memories</button>
+            <button id="clear-thread" class="clear-thread" type="button">Clear</button>
+            <div class="model-badge"><span aria-hidden="true">✦</span> AI Agent</div>
+          </div>
+        </header>
+
+        <section id="conversation" class="conversation" aria-live="polite">
+          <div id="welcome" class="welcome">
+            <div class="welcome-icon" aria-hidden="true">✦</div>
+            <p class="eyebrow">YOUR LOCAL AI WORKSPACE</p>
+            <h1>What can I help you with?</h1>
+            <p class="welcome-copy">
+              Ask a question, explore an idea, or hand off a task. Atmos can use
+              its configured tools to help.
+            </p>
+          </div>
+          <div id="messages" class="messages"></div>
+        </section>
+
+        <footer class="composer-area">
+          <form id="chat-form" class="composer">
+            <label class="sr-only" for="message-input">Message Atmos</label>
+            <textarea
+              id="message-input"
+              rows="1"
+              maxlength="20000"
+              placeholder="Message Atmos..."
+              autocomplete="off"
+              required
+            ></textarea>
+            <div class="composer-controls">
+              <span id="input-hint" class="input-hint" aria-live="polite">Enter to send · Shift + Enter for a new line</span>
+              <div class="composer-actions">
+                <button id="voice-button" class="voice-button" type="button" aria-label="Start voice dictation" title="Start voice dictation">
+                  <svg viewBox="0 0 24 24" aria-hidden="true">
+                    <rect x="9" y="3" width="6" height="12" rx="3"></rect>
+                    <path d="M5.5 11a6.5 6.5 0 0 0 13 0M12 17.5V21m-4 0h8"></path>
+                  </svg>
+                </button>
+                <button id="send-button" class="send-button" type="submit" aria-label="Send message">
+                  <svg viewBox="0 0 24 24" aria-hidden="true">
+                    <path d="M5 12h13M12 5l7 7-7 7"></path>
+                  </svg>
+                </button>
+              </div>
+            </div>
+          </form>
+          <p class="disclaimer">Atmos can make mistakes. Review important information.</p>
+        </footer>
+      </main>
+    </div>
+    <dialog id="memory-dialog" class="memory-dialog">
+      <header class="memory-header">
+        <div>
+          <p class="eyebrow">PERSONAL CONTEXT</p>
+          <h2>Saved memories</h2>
+        </div>
+        <button id="close-memories" class="dialog-close" type="button" aria-label="Close memories">×</button>
+      </header>
+      <p class="memory-description">
+        Facts and preferences saved in the agent's SQLite memory.
+      </p>
+      <label class="sr-only" for="memory-search">Search memories</label>
+      <input id="memory-search" class="memory-search" type="search" placeholder="Search memories">
+      <form id="memory-add-form" class="memory-add-form">
+        <label for="memory-input">Add a memory</label>
+        <textarea id="memory-input" rows="3" maxlength="5000" placeholder="Write a fact or preference to remember..." required></textarea>
+        <button class="memory-save" type="submit">Save memory</button>
+      </form>
+      <p id="memory-status" class="memory-status" aria-live="polite"></p>
+      <div id="memory-list" class="memory-list"></div>
+    </dialog>
+    <script src="/static/app.js" defer></script>
+  </body>
+</html>

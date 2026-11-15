@@ -1,0 +1,152 @@
+"""Loopback-only FastAPI interface for a persistent interactive shell."""
+
+from contextlib import asynccontextmanager
+from threading import Lock
+from typing import Literal
+
+from fastapi import FastAPI, Request
+from fastapi.responses import JSONResponse
+from pydantic import BaseModel, Field
+
+from shell.persistent_shell import CommandResult, PersistentShell, ShellSessionClosed
+
+
+class RunRequest(BaseModel):
+    """Request body for starting a shell command."""
+
+    command: str = Field(description="Shell command to execute.")
+    timeout: float | None = Field(
+        default=None,
+        ge=0,
+        description="Quiet-period timeout in seconds; defaults to the shell setting.",
+    )
+
+
+class InputRequest(BaseModel):
+    """Request body for sending input to the active command."""
+
+    text: str = Field(description="Text to write to the shell terminal.")
+    newline: bool = Field(default=True, description="Append Enter after the text.")
+    timeout: float | None = Field(
+        default=None,
+        ge=0,
+        description="Quiet-period timeout in seconds; defaults to the shell setting.",
+    )
+
+
+class PollRequest(BaseModel):
+    """Request body for waiting for more command output."""
+
+    timeout: float | None = Field(
+        default=None,
+        ge=0,
+        description="Quiet-period timeout in seconds; defaults to the shell setting.",
+    )
+
+
+class CommandResponse(BaseModel):
+    """Output and current state returned by a shell operation."""
+
+    output: str
+    state: Literal["completed", "waiting_for_input", "idle"]
+    exit_code: int | None = None
+
+
+class ResetResponse(BaseModel):
+    """Confirmation that the shell session was reset."""
+
+    status: Literal["reset"] = "reset"
+
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    """Create the shell on startup and terminate it during application shutdown."""
+    app.state.shell = PersistentShell()
+    app.state.shell_lock = Lock()
+    try:
+        yield
+    finally:
+        with app.state.shell_lock:
+            app.state.shell.close()
+
+
+app = FastAPI(
+    title="Persistent Shell API",
+    description=(
+        "Local HTTP API for one persistent interactive Bash session. "
+        "The default startup binds to 127.0.0.1; do not expose this API "
+        "to untrusted networks because it executes shell commands."
+    ),
+    lifespan=lifespan,
+)
+
+
+@app.exception_handler(ValueError)
+async def handle_invalid_operation(_request: Request, exc: ValueError) -> JSONResponse:
+    """Report invalid shell state transitions as client conflicts."""
+    return JSONResponse(status_code=409, content={"detail": str(exc)})
+
+
+@app.exception_handler(ShellSessionClosed)
+async def handle_closed_session(
+    _request: Request, exc: ShellSessionClosed
+) -> JSONResponse:
+    """Report an unavailable shell session."""
+    return JSONResponse(status_code=503, content={"detail": str(exc)})
+
+
+def _response(result: CommandResult) -> CommandResponse:
+    """Convert a shell result to the API's response model."""
+    return CommandResponse(
+        output=result.output,
+        state=result.state,
+        exit_code=result.exit_code,
+    )
+
+
+@app.get("/health")
+def health() -> dict[str, str]:
+    """Report that the API process is responsive."""
+    return {"status": "ok"}
+
+
+@app.post("/run", response_model=CommandResponse)
+def run(payload: RunRequest, request: Request) -> CommandResponse:
+    """Start a command and collect output through completion or a quiet period."""
+    with request.app.state.shell_lock:
+        result = request.app.state.shell.run(payload.command, payload.timeout)
+    return _response(result)
+
+
+@app.post("/send_input", response_model=CommandResponse)
+def send_input(payload: InputRequest, request: Request) -> CommandResponse:
+    """Send text to the active command and collect any resulting output."""
+    with request.app.state.shell_lock:
+        result = request.app.state.shell.send_input(
+            payload.text,
+            newline=payload.newline,
+            timeout=payload.timeout,
+        )
+    return _response(result)
+
+
+@app.post("/poll", response_model=CommandResponse)
+def poll(payload: PollRequest, request: Request) -> CommandResponse:
+    """Collect more output from the active command without sending input."""
+    with request.app.state.shell_lock:
+        result = request.app.state.shell.poll(payload.timeout)
+    return _response(result)
+
+
+@app.post("/reset", response_model=ResetResponse)
+def reset(request: Request) -> ResetResponse:
+    """Terminate the current shell and start a clean session."""
+    with request.app.state.shell_lock:
+        request.app.state.shell.reset()
+    return ResetResponse()
+
+
+if __name__ == "__main__":
+    import uvicorn
+
+    uvicorn.run(app, host="127.0.0.1", port=port_assignment)
