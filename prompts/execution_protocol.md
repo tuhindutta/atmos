@@ -39,7 +39,7 @@ command sandbox.
   `agents/<name>.md` within their configured resource directory. Reads are
   line-based, limited to at most 1000 lines per call, and reject absolute paths,
   `..` traversal, and paths outside that directory.
-- In this project the resource directory is `agents/.atmos/`, because it is
+- In this project the resource directory is `.atmos/`, because it is
   derived from `agents/master_agent.py`. The project-root `.atmos/` directory
   is separate; it contains the CLI memory database and `playground/`. Do not
   assume files in root `.atmos/skills/` or `.atmos/agents/` are visible through
