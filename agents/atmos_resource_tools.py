@@ -10,7 +10,7 @@ from langchain_core.tools import BaseTool, tool
 
 
 def create_atmos_resource_tools(atmos_directory: str | Path) -> list[BaseTool]:
-    """Create tools for reading user-provided files under ``.atmos``."""
+    """Create tools for reading and creating user-provided files under ``.atmos``."""
     root = Path(atmos_directory).expanduser().resolve()
 
     @tool
@@ -82,7 +82,50 @@ def create_atmos_resource_tools(atmos_directory: str | Path) -> list[BaseTool]:
             "next_start_line": start_line + max_lines if has_more else None,
         }
 
-    return [list_atmos_resources, read_atmos_resource]
+    @tool
+    def create_atmos_resource(
+        resource_type: Literal["skills", "agents"],
+        path: str,
+        content: str,
+    ) -> dict[str, str]:
+        """Create a skill or agent resource under .atmos.
+
+        ``path`` is relative to the resource type. Skills must use
+        ``<name>/SKILL.md`` and agents must use ``<name>.md``.
+        Existing files are never overwritten.
+        """
+        relative = Path(path)
+        parts = relative.parts
+        valid_skill = (
+            resource_type == "skills"
+            and len(parts) == 2
+            and parts[0] not in ("", ".", "..")
+            and parts[1] == "SKILL.md"
+        )
+        valid_agent = (
+            resource_type == "agents"
+            and len(parts) == 1
+            and parts[0].endswith(".md")
+            and parts[0] not in (".", "..")
+        )
+        if relative.is_absolute() or ".." in parts or not (valid_skill or valid_agent):
+            raise ValueError(
+                "Skills require <name>/SKILL.md and agents require <name>.md"
+            )
+
+        target = (root / resource_type / relative).resolve()
+        if root not in target.parents:
+            raise ValueError("Resource path must stay inside the .atmos directory")
+
+        target.parent.mkdir(parents=True, exist_ok=True)
+        with target.open("x", encoding="utf-8") as resource:
+            resource.write(content)
+        return {
+            "path": target.relative_to(root).as_posix(),
+            "status": "created",
+        }
+
+    return [list_atmos_resources, read_atmos_resource, create_atmos_resource]
 
 
 __all__ = ["create_atmos_resource_tools"]
