@@ -1,0 +1,227 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Atmos Memory Architecture</title>
+  <style>
+    :root {
+      color-scheme: light;
+      --ink: #17233b;
+      --muted: #596981;
+      --line: #c9d5e5;
+      --blue: #e8f1ff;
+      --blue-line: #5b86d6;
+      --green: #e7f7ef;
+      --green-line: #399268;
+      --violet: #f1ebff;
+      --violet-line: #8a67c7;
+      --paper: #f5f8fc;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      background: var(--paper);
+      color: var(--ink);
+      font: 16px/1.5 system-ui, -apple-system, "Segoe UI", sans-serif;
+    }
+    main { max-width: 1120px; margin: 0 auto; padding: 48px 24px 64px; }
+    .eyebrow {
+      color: #426bb4;
+      font-size: .78rem;
+      font-weight: 750;
+      letter-spacing: .12em;
+      text-transform: uppercase;
+    }
+    h1 { margin: 8px 0; font-size: clamp(2rem, 5vw, 3.2rem); line-height: 1.1; }
+    h2 { margin: 0 0 14px; font-size: 1.25rem; }
+    p { margin: 0; color: var(--muted); }
+    .intro { max-width: 760px; margin-bottom: 30px; }
+    .panel {
+      margin-top: 20px;
+      padding: 24px;
+      border: 1px solid #dce4ef;
+      border-radius: 18px;
+      background: #fff;
+      box-shadow: 0 8px 28px #17233b0a;
+    }
+    .flow {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 30px;
+      align-items: stretch;
+      margin: 24px 0;
+    }
+    .node {
+      position: relative;
+      min-height: 116px;
+      padding: 16px;
+      border: 1px solid var(--blue-line);
+      border-radius: 12px;
+      background: var(--blue);
+    }
+    .node:not(:last-child)::after {
+      position: absolute;
+      top: 50%;
+      right: -24px;
+      width: 18px;
+      color: #71819a;
+      content: "→";
+      font-size: 1.3rem;
+      font-weight: 700;
+      transform: translateY(-50%);
+    }
+    .node strong, .table-card strong { display: block; margin-bottom: 5px; }
+    .node span, .table-card span { color: var(--muted); font-size: .9rem; }
+    .split {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 18px;
+      margin-top: 22px;
+    }
+    .branch {
+      padding: 18px;
+      border: 1px solid var(--green-line);
+      border-radius: 12px;
+      background: var(--green);
+    }
+    .branch.trace {
+      border-color: var(--violet-line);
+      background: var(--violet);
+    }
+    .tables {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 14px;
+      margin-top: 18px;
+    }
+    .table-card {
+      padding: 16px;
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      background: #fbfcfe;
+    }
+    code {
+      padding: 2px 5px;
+      border-radius: 5px;
+      background: #edf1f7;
+      color: #273958;
+      font-size: .88em;
+    }
+    ul { margin: 10px 0 0; padding-left: 20px; color: var(--muted); }
+    li + li { margin-top: 5px; }
+    .note {
+      margin-top: 18px;
+      padding: 14px 16px;
+      border-left: 4px solid #e1a83b;
+      border-radius: 6px;
+      background: #fff7e6;
+      color: #624b1e;
+    }
+    @media (max-width: 760px) {
+      .flow { grid-template-columns: 1fr 1fr; gap: 14px; }
+      .node:not(:last-child)::after { content: none; }
+      .split, .tables { grid-template-columns: 1fr; }
+    }
+    @media (max-width: 480px) {
+      main { padding: 32px 16px 48px; }
+      .flow { grid-template-columns: 1fr; }
+      .panel { padding: 18px; }
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <div class="eyebrow">Atmos · Architecture</div>
+    <h1>Memory</h1>
+    <p class="intro">
+      Short-term conversation history and durable long-term memories share a
+      SQLite database. Conversation messages and agent event traces are stored
+      separately and linked by message ID.
+    </p>
+
+    <section class="panel" aria-labelledby="turn-flow">
+      <h2 id="turn-flow">Conversation lifecycle</h2>
+      <div class="flow">
+        <div class="node">
+          <strong>Chat request</strong>
+          <span><code>POST /api/chat</code> carries a thread ID and user message.</span>
+        </div>
+        <div class="node">
+          <strong>Thread context</strong>
+          <span>The request's thread ID is set for the active agent/tool execution.</span>
+        </div>
+        <div class="node">
+          <strong>Load history</strong>
+          <span><code>recent_messages()</code> reads up to 20 messages for that thread.</span>
+        </div>
+        <div class="node">
+          <strong>Run agent</strong>
+          <span>Agent events stream to the client; non-delta, non-final events are collected as a trace.</span>
+        </div>
+      </div>
+
+      <div class="split">
+        <div class="branch">
+          <strong>On a final answer</strong>
+          <ul>
+            <li><code>save_turn()</code> inserts the user message and assistant answer.</li>
+            <li>Collected event payloads are attached to the assistant message.</li>
+            <li>Failed/incomplete turns are not saved as completed turns.</li>
+          </ul>
+        </div>
+        <div class="branch trace">
+          <strong>Read back history and trace</strong>
+          <ul>
+            <li><code>recent_messages_with_events_tool</code> reads the active thread when called by the agent.</li>
+            <li><code>GET /api/threads/{thread_id}/messages</code> serves messages with events to the UI.</li>
+            <li>Stored event payloads are JSON, including tool start/end/error records.</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="note">
+        The agent's ordinary prompt history contains message role and text only.
+        It can retrieve prior event traces by calling the history tool; those
+        traces are not automatically appended to every prompt.
+      </div>
+    </section>
+
+    <section class="panel" aria-labelledby="schema">
+      <h2 id="schema">SQLite schema</h2>
+      <p>Default database: <code>.atmos/agent_memory.sqlite3</code></p>
+      <div class="tables">
+        <div class="table-card">
+          <strong>conversation_messages</strong>
+          <span>Short-term chat, scoped by <code>thread_id</code>.</span>
+          <ul>
+            <li><code>id</code> — message key</li>
+            <li><code>role</code> — user or assistant</li>
+            <li><code>content</code> — message text</li>
+            <li><code>created_at</code></li>
+          </ul>
+        </div>
+        <div class="table-card">
+          <strong>conversation_events</strong>
+          <span>Agent trace records associated with assistant messages.</span>
+          <ul>
+            <li><code>assistant_message_id</code> — foreign key</li>
+            <li><code>event_type</code> — event category</li>
+            <li><code>payload</code> — serialized event JSON</li>
+            <li>Deleted with its message</li>
+          </ul>
+        </div>
+        <div class="table-card">
+          <strong>long_term_memories</strong>
+          <span>Durable, shared memories, independent of thread history.</span>
+          <ul>
+            <li><code>content</code> — unique, case-insensitive text</li>
+            <li><code>created_at</code> / <code>updated_at</code></li>
+            <li>Read and written with memory tools</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+  </main>
+</body>
+</html>

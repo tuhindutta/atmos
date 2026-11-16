@@ -1,0 +1,690 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Atmos Project Directory and Module Reference</title>
+  <style>
+    :root {
+      color-scheme: light;
+      --ink: #17233b;
+      --muted: #596981;
+      --line: #d7e0ec;
+      --blue: #e8f1ff;
+      --blue-line: #5b86d6;
+      --green: #e7f7ef;
+      --green-line: #399268;
+      --purple: #f1ebff;
+      --purple-line: #8a67c7;
+      --paper: #f5f8fc;
+    }
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      background: var(--paper);
+      color: var(--ink);
+      font: 15px/1.55 system-ui, -apple-system, "Segoe UI", sans-serif;
+    }
+    main { max-width: 1180px; margin: 0 auto; padding: 44px 24px 72px; }
+    h1 { margin: 8px 0; font-size: clamp(2rem, 5vw, 3.2rem); line-height: 1.1; }
+    h2 { margin: 0 0 14px; font-size: 1.35rem; }
+    h3 { margin: 0; font-size: 1.05rem; }
+    p { margin: 0; color: var(--muted); }
+    .eyebrow {
+      color: #426bb4;
+      font-size: .78rem;
+      font-weight: 750;
+      letter-spacing: .12em;
+      text-transform: uppercase;
+    }
+    .intro { max-width: 850px; margin: 12px 0 24px; }
+    .panel, details.module {
+      margin-top: 16px;
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      background: #fff;
+      box-shadow: 0 8px 24px #17233b08;
+    }
+    .panel { padding: 22px; }
+    nav {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin: 20px 0 28px;
+    }
+    nav a {
+      padding: 7px 11px;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      background: white;
+      color: #345b9e;
+      font-size: .9rem;
+      text-decoration: none;
+    }
+    nav a:hover, nav a:focus-visible { background: var(--blue); }
+    pre {
+      overflow-x: auto;
+      margin: 0;
+      padding: 18px;
+      border: 1px solid #dce4ef;
+      border-radius: 10px;
+      background: #f8fafd;
+      color: #273958;
+      font: 13px/1.5 ui-monospace, SFMono-Regular, Menlo, monospace;
+    }
+    code {
+      padding: 2px 5px;
+      border-radius: 5px;
+      background: #edf1f7;
+      color: #273958;
+      font: .9em ui-monospace, SFMono-Regular, Menlo, monospace;
+    }
+    .hint {
+      margin-top: 13px;
+      padding: 12px 14px;
+      border-left: 4px solid #e1a83b;
+      border-radius: 6px;
+      background: #fff7e6;
+      color: #624b1e;
+    }
+    .section-title { margin: 36px 0 10px; }
+    .module-list { display: grid; gap: 12px; }
+    details.module { overflow: hidden; margin: 0; }
+    details.module[open] { box-shadow: 0 8px 24px #17233b0c; }
+    summary {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 16px 18px;
+      cursor: pointer;
+      list-style: none;
+    }
+    summary::-webkit-details-marker { display: none; }
+    summary::before {
+      color: #5578b7;
+      content: "＋";
+      font-weight: 800;
+    }
+    details[open] > summary::before { content: "−"; }
+    .path { color: #234a8a; font: 600 .97rem ui-monospace, SFMono-Regular, Menlo, monospace; }
+    .summary-note { margin-left: auto; color: var(--muted); font-size: .86rem; }
+    .module-body { padding: 0 18px 20px; }
+    .module-body > p { margin: 0 0 14px; }
+    .api-group {
+      margin-top: 16px;
+      overflow: hidden;
+      border: 1px solid #e0e7f0;
+      border-radius: 10px;
+    }
+    .api-group h4 {
+      margin: 0;
+      padding: 9px 12px;
+      background: #f1f5fa;
+      color: #344967;
+      font-size: .88rem;
+      letter-spacing: .02em;
+    }
+    .api {
+      display: grid;
+      grid-template-columns: minmax(270px, .95fr) 1.6fr;
+      border-top: 1px solid #e7edf4;
+    }
+    .api:first-of-type { border-top: 0; }
+    .api > div { padding: 10px 12px; }
+    .api > div:first-child { background: #fcfdff; }
+    .api code { white-space: normal; overflow-wrap: anywhere; }
+    .api p { font-size: .92rem; }
+    .fields {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 7px;
+      margin: 10px 0 4px;
+    }
+    .fields code { font-size: .84rem; }
+    .pill {
+      display: inline-block;
+      padding: 3px 8px;
+      border-radius: 999px;
+      background: var(--blue);
+      color: #315a9f;
+      font-size: .78rem;
+      font-weight: 700;
+    }
+    .pill.memory { background: var(--green); color: #276b4a; }
+    .pill.ui { background: var(--purple); color: #68479c; }
+    .tree { white-space: pre; }
+    .small { font-size: .9rem; }
+    footer { margin-top: 30px; color: var(--muted); font-size: .88rem; }
+    @media (max-width: 760px) {
+      main { padding: 30px 16px 48px; }
+      .api { grid-template-columns: 1fr; }
+      .api > div + div { padding-top: 0; }
+      .summary-note { display: none; }
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <div class="eyebrow">Atmos · Code map</div>
+    <h1>Directory &amp; module reference</h1>
+    <p class="intro">
+      A guide to the project's source layout and the classes, functions, routes,
+      and browser helpers defined in each first-party module. Function entries
+      show signatures and a short description of their responsibility.
+    </p>
+
+    <section class="panel" id="directory">
+      <h2>Directory structure</h2>
+      <pre class="tree">.
+├── atmos.py                         # FastAPI web application and agent event adapter
+├── agents/                          # Agent assembly, memory, and tool factories
+│   ├── master_agent.py
+│   ├── sqlite_memory.py
+│   ├── atmos_resource_tools.py
+│   ├── progress_tools.py
+│   └── sub_agent.py
+├── shell/                           # Persistent shell process, API, and tools
+│   ├── persistent_shell.py
+│   ├── persistent_shell_api.txt     # Python/FastAPI template materialized at runtime
+│   ├── persistent_shell_tools.py
+│   ├── persistent_shell_manager_tools.py
+│   └── create_shell_persistent_fastapi_script.py
+├── web/                             # Browser UI
+│   ├── index.html
+│   ├── app.js
+│   └── styles.css
+├── prompts/                         # Agent prompt and operating protocols
+│   ├── master_agent_prompt.md
+│   ├── execution_protocol.md
+│   ├── delegation_protocol.md
+│   └── memory_protocol.md
+├── documents/                       # Standalone architecture and code-map pages
+│   ├── agent-architecture.html
+│   ├── memory-architecture.html
+│   ├── tools-architecture.html
+│   └── module-reference.html
+├── .atmos/                          # Runtime database and user-created resources
+│   ├── agent_memory.sqlite3
+│   ├── agents/
+│   ├── playground/
+│   └── skills/
+├── requirements.txt
+└── LICENSE
+
+Local-only (ignored) paths: .venv/ (Python environment), .git/, __pycache__/,
+and archieved/ (legacy CLI scripts; not part of the tracked application).</pre>
+      <div class="hint">
+        The active web entry point is <code>atmos.py</code>. The files under
+        <code>archieved/</code> are local ignored legacy scripts. In particular,
+        the old CLI runner still calls <code>SQLiteMemory.create_tools()</code>
+        without the active-thread callback required by the current API.
+      </div>
+    </section>
+
+    <nav aria-label="Module sections">
+      <a href="#web-app">Web app</a>
+      <a href="#agents">Agents</a>
+      <a href="#shell">Shell</a>
+      <a href="#browser">Browser UI</a>
+      <a href="#supporting">Prompts &amp; runtime files</a>
+      <a href="#legacy">Local legacy scripts</a>
+    </nav>
+
+    <h2 class="section-title" id="web-app">Web application</h2>
+    <div class="module-list">
+      <details class="module" open>
+        <summary>
+          <span class="path">atmos.py</span>
+          <span class="summary-note">FastAPI routes · SSE streaming · lifecycle</span>
+        </summary>
+        <div class="module-body">
+          <p>
+            Creates the browser-facing API, initializes the runtime, adapts
+            LangGraph events to server-sent events, and connects chat requests
+            to SQLite history.
+          </p>
+          <div class="api-group">
+            <h4>Data models</h4>
+            <div class="api">
+              <div><code>AgentRuntime</code></div>
+              <div><p>Runtime bundle holding the agent, SQLite memory, shell tools, and request lock.</p><div class="fields"><code>agent</code><code>memory</code><code>shell_tools</code><code>request_lock</code></div></div>
+            </div>
+            <div class="api">
+              <div><code>ChatRequest(BaseModel)</code></div>
+              <div><p>Validates chat input: <code>thread_id</code> (1–100 chars) and <code>message</code> (1–20,000 chars).</p></div>
+            </div>
+            <div class="api">
+              <div><code>MemoryRequest(BaseModel)</code></div>
+              <div><p>Validates a memory body whose <code>content</code> is 1–5,000 characters.</p></div>
+            </div>
+          </div>
+          <div class="api-group">
+            <h4>Event and content helpers</h4>
+            <div class="api">
+              <div><code>render_markdown(source: str) -&gt; str</code></div>
+              <div><p>Renders Markdown and sanitizes the resulting HTML using the app's allowlist.</p></div>
+            </div>
+            <div class="api">
+              <div><code>content_text(content: Any) -&gt; str</code></div>
+              <div><p>Extracts readable text from strings and common content-block lists.</p></div>
+            </div>
+            <div class="api">
+              <div><code>json_safe(value: Any) -&gt; Any</code></div>
+              <div><p>Recursively converts values, Pydantic models, and message-like objects into JSON-safe data.</p></div>
+            </div>
+            <div class="api">
+              <div><code>message_output(value: Any) -&gt; dict[str, Any]</code></div>
+              <div><p>Normalizes an AI message into text, raw content, and tool calls.</p></div>
+            </div>
+            <div class="api">
+              <div><code>final_message(output: Any) -&gt; dict[str, Any] | None</code></div>
+              <div><p>Finds the latest AI/assistant message in an agent output and normalizes it.</p></div>
+            </div>
+            <div class="api">
+              <div><code>stream_agent_events(agent: Any, query: str, prior_messages: list[dict[str, str]])</code></div>
+              <div><p>Async generator that maps model/tool callbacks to UI event objects, tracks the answer, and retries failed execution up to the configured recovery count.</p></div>
+            </div>
+          </div>
+          <div class="api-group">
+            <h4>Application setup and routes</h4>
+            <div class="api">
+              <div><code>lifespan(app: FastAPI)</code></div>
+              <div><p>Creates SQLite memory, shell tools, model, and master agent at startup; stops the managed terminal during shutdown.</p></div>
+            </div>
+            <div class="api">
+              <div><code>create_app(database_path: Path = DEFAULT_DATABASE) -&gt; FastAPI</code></div>
+              <div><p>Builds the FastAPI app, installs middleware and routes, and binds request-local active-thread state.</p></div>
+            </div>
+            <div class="api">
+              <div><code>enforce_same_origin(request, call_next)</code></div>
+              <div><p>Nested middleware that checks origins on API POST/DELETE requests.</p></div>
+            </div>
+            <div class="api">
+              <div><code>index() -&gt; FileResponse</code></div>
+              <div><p>Serves <code>web/index.html</code> at <code>/</code>.</p></div>
+            </div>
+            <div class="api">
+              <div><code>health() -&gt; dict[str, str]</code></div>
+              <div><p>Returns the web API health status.</p></div>
+            </div>
+            <div class="api">
+              <div><code>list_threads(request, query="")</code></div>
+              <div><p><code>GET /api/threads</code>: lists threads or returns matching conversations.</p></div>
+            </div>
+            <div class="api">
+              <div><code>get_messages(thread_id, request, limit=200)</code></div>
+              <div><p><code>GET /api/threads/{thread_id}/messages</code>: returns messages and stored events, rendering assistant Markdown as HTML.</p></div>
+            </div>
+            <div class="api">
+              <div><code>chat(payload: ChatRequest, request: Request)</code></div>
+              <div><p><code>POST /api/chat</code>: validates the input and returns an SSE stream; nested <code>event_stream()</code> loads history, sets current-thread context, runs the agent, and saves successful turns with traces.</p></div>
+            </div>
+            <div class="api">
+              <div><code>clear_thread(thread_id, request)</code></div>
+              <div><p><code>DELETE /api/threads/{thread_id}</code>: deletes saved messages for a thread.</p></div>
+            </div>
+            <div class="api">
+              <div><code>list_memories(request, query="", limit=50)</code></div>
+              <div><p><code>GET /api/memories</code>: returns ranked saved memories.</p></div>
+            </div>
+            <div class="api">
+              <div><code>save_memory(payload: MemoryRequest, request)</code></div>
+              <div><p><code>POST /api/memories</code>: validates and saves durable memory text.</p></div>
+            </div>
+            <div class="api">
+              <div><code>delete_memory(memory_id, request)</code></div>
+              <div><p><code>DELETE /api/memories/{memory_id}</code>: removes a memory or returns not found.</p></div>
+            </div>
+            <div class="api">
+              <div><code>validate_thread_id(thread_id: str) -&gt; str</code></div>
+              <div><p>Trims and validates thread IDs; raises HTTP 422 for blank or overlong values.</p></div>
+            </div>
+            <div class="api">
+              <div><code>main() -&gt; None</code></div>
+              <div><p>Parses the listening port and runs the app on loopback with Uvicorn.</p></div>
+            </div>
+          </div>
+        </div>
+      </details>
+    </div>
+
+    <h2 class="section-title" id="agents">Agent and memory modules</h2>
+    <div class="module-list">
+      <details class="module">
+        <summary>
+          <span class="path">agents/master_agent.py</span>
+          <span class="summary-note">Assembles the master LangGraph agent</span>
+        </summary>
+        <div class="module-body">
+          <p>Creates runtime resource directories, loads the master prompt, builds tool groups, and returns a LangGraph agent.</p>
+          <div class="api-group">
+            <h4>Factory</h4>
+            <div class="api">
+              <div><code>create_master_agent(model, *, python_runtime="./.venv/bin/python", port=8082, startup_timeout=10.0, memory_tools=(), shell_tools=None, additional_tools=())</code></div>
+              <div><p>Combines shell tools, resource tools, <code>query_sub_agent</code>, supplied memory tools, and additional tools. If shell tools are omitted, creates a shell manager. Alias: <code>create_shell_react_agent</code>.</p></div>
+            </div>
+          </div>
+        </div>
+      </details>
+
+      <details class="module">
+        <summary>
+          <span class="path">agents/sqlite_memory.py</span>
+          <span class="summary-note">Short-term threads, event traces, long-term memories</span>
+        </summary>
+        <div class="module-body">
+          <p><code>SQLiteMemory</code> creates the SQLite schema and provides transactional storage operations.</p>
+          <div class="api-group">
+            <h4>Class: SQLiteMemory</h4>
+            <div class="api"><div><code>__init__(database_path: str | Path) -&gt; None</code></div><div><p>Resolves the database path, creates its parent directory, and initializes tables and indexes.</p></div></div>
+            <div class="api"><div><code>_connection() -&gt; Iterator[sqlite3.Connection]</code></div><div><p>Context manager that opens SQLite with foreign keys enabled and commits or rolls back.</p></div></div>
+            <div class="api"><div><code>recent_messages(thread_id, *, limit=20) -&gt; list[dict[str, str]]</code></div><div><p>Fetches a thread's latest messages and returns them in chronological order.</p></div></div>
+            <div class="api"><div><code>save_turn(thread_id, query, response, *, events=None) -&gt; None</code></div><div><p>Inserts the user query, assistant answer, and any supplied trace events linked to that assistant message.</p></div></div>
+            <div class="api"><div><code>recent_messages_with_events(thread_id, *, limit=20) -&gt; list[dict[str, Any]]</code></div><div><p>Returns recent messages with parsed event payloads attached to assistant messages.</p></div></div>
+            <div class="api"><div><code>list_threads() -&gt; list[str]</code></div><div><p>Lists thread IDs ordered by the most recently inserted message.</p></div></div>
+            <div class="api"><div><code>search_conversations(query, *, limit=100) -&gt; list[dict[str, str]]</code></div><div><p>Performs case-insensitive substring search over message content and returns matching snippets.</p></div></div>
+            <div class="api"><div><code>clear_thread(thread_id) -&gt; int</code></div><div><p>Deletes all messages for a thread; linked events cascade-delete.</p></div></div>
+            <div class="api"><div><code>remember(content) -&gt; str</code></div><div><p>Stores a unique long-term memory or refreshes its update timestamp.</p></div></div>
+            <div class="api"><div><code>list_memories(query="", *, limit=50) -&gt; list[dict[str, Any]]</code></div><div><p>Ranks memories by matched query terms and recency; without terms, returns recent memories.</p></div></div>
+            <div class="api"><div><code>delete_memory(memory_id) -&gt; bool</code></div><div><p>Deletes one memory and reports whether a row was removed.</p></div></div>
+            <div class="api"><div><code>search(query, *, limit=10) -&gt; list[str]</code></div><div><p>Convenience wrapper returning only matching memory content strings.</p></div></div>
+            <div class="api"><div><code>create_tools(current_thread_id: Callable[[], str | None]) -&gt; list[BaseTool]</code></div><div><p>Creates tools for saving/searching memories and reading recent messages/events for the active thread. Raises if the history tool is called without an active thread.</p></div></div>
+          </div>
+          <div class="api-group">
+            <h4>Nested tools from create_tools()</h4>
+            <div class="api"><div><code>remember_memory(content: str) -&gt; str</code></div><div><p>Agent tool for saving a durable, non-sensitive fact or preference.</p></div></div>
+            <div class="api"><div><code>search_memories(query="", limit=10) -&gt; str</code></div><div><p>Agent tool for searching or listing long-term memories.</p></div></div>
+            <div class="api"><div><code>recent_messages_with_events_tool(limit=20) -&gt; str</code></div><div><p>Agent tool for retrieving recent thread messages and recorded tool/event traces as JSON text.</p></div></div>
+          </div>
+        </div>
+      </details>
+
+      <details class="module">
+        <summary>
+          <span class="path">agents/atmos_resource_tools.py</span>
+          <span class="summary-note">User-provided skill/agent Markdown</span>
+        </summary>
+        <div class="module-body">
+          <p>Factory for path-restricted tools rooted at the supplied Atmos resource directory.</p>
+          <div class="api-group">
+            <h4>Factory and nested tools</h4>
+            <div class="api"><div><code>create_atmos_resource_tools(atmos_directory) -&gt; list[BaseTool]</code></div><div><p>Builds resource tools rooted at a resolved directory.</p></div></div>
+            <div class="api"><div><code>list_atmos_resources(category="all")</code></div><div><p>Lists skill <code>SKILL.md</code> and agent <code>.md</code> resource files.</p></div></div>
+            <div class="api"><div><code>read_atmos_resource(relative_path, start_line=1, max_lines=200)</code></div><div><p>Reads an allowed skill/agent definition in line-based chunks, rejecting traversal and unsupported paths.</p></div></div>
+            <div class="api"><div><code>create_atmos_resource(resource_type, path, content)</code></div><div><p>Creates a new skill or agent resource without overwriting an existing file.</p></div></div>
+          </div>
+        </div>
+      </details>
+
+      <details class="module">
+        <summary>
+          <span class="path">agents/progress_tools.py</span>
+          <span class="summary-note">Progress events for streaming interfaces</span>
+        </summary>
+        <div class="module-body">
+          <div class="api-group">
+            <h4>Functions</h4>
+            <div class="api"><div><code>report_progress(message: str, config: RunnableConfig) -&gt; str</code></div><div><p>Validates a short status message and dispatches the <code>agent_progress</code> custom event.</p></div></div>
+            <div class="api"><div><code>create_progress_tools() -&gt; list[BaseTool]</code></div><div><p>Returns the progress tool as a tool list for agent registration.</p></div></div>
+          </div>
+        </div>
+      </details>
+
+      <details class="module">
+        <summary>
+          <span class="path">agents/sub_agent.py</span>
+          <span class="summary-note">Focused child-agent tool</span>
+        </summary>
+        <div class="module-body">
+          <div class="api-group">
+            <h4>Factory and nested tool</h4>
+            <div class="api"><div><code>sub_agent(model: str | BaseChatModel) -&gt; BaseTool</code></div><div><p>Creates the <code>query_sub_agent</code> tool bound to the given model.</p></div></div>
+            <div class="api"><div><code>query_sub_agent(system_prompt, query, *, python_runtime="./.venv/bin/python", port=8083, startup_timeout=10.0)</code></div><div><p>Builds a temporary child LangGraph agent with shell and resource tools, invokes it for one query, returns its final content, and attempts terminal cleanup in <code>finally</code>.</p></div></div>
+          </div>
+          <div class="hint">
+            This module defines its own <code>ATMOS_DIRECTORY</code> relative to
+            the <code>agents/</code> directory; the master-agent module points at
+            the project-root <code>.atmos/</code>.
+          </div>
+        </div>
+      </details>
+    </div>
+
+    <h2 class="section-title" id="shell">Persistent-shell modules</h2>
+    <div class="module-list">
+      <details class="module">
+        <summary>
+          <span class="path">shell/persistent_shell.py</span>
+          <span class="summary-note">PTY-backed interactive Bash process</span>
+        </summary>
+        <div class="module-body">
+          <p>Maintains one interactive Bash process so working directory, environment, and shell variables persist between commands.</p>
+          <div class="api-group">
+            <h4>Types</h4>
+            <div class="api"><div><code>CommandResult(output, state, exit_code=None)</code></div><div><p>Immutable result for command, poll, or input operations. States are <code>completed</code>, <code>waiting_for_input</code>, and <code>idle</code>.</p></div></div>
+            <div class="api"><div><code>ShellSessionError(RuntimeError)</code></div><div><p>Base exception for persistent-shell session errors.</p></div></div>
+            <div class="api"><div><code>ShellSessionClosed(ShellSessionError)</code></div><div><p>Signals operations attempted after the shell session closes or exits.</p></div></div>
+            <div class="api"><div><code>PersistentShell(shell="bash", idle_timeout=1.0, encoding="utf-8")</code></div><div><p>Class that owns the interactive shell, its PTY, command markers, and output buffers.</p></div></div>
+          </div>
+          <div class="api-group">
+            <h4>PersistentShell methods</h4>
+            <div class="api"><div><code>__init__(shell, idle_timeout, encoding)</code></div><div><p>Validates configuration and starts the shell session.</p></div></div>
+            <div class="api"><div><code>_start_session() -&gt; None</code></div><div><p>Initializes session state and launches Bash on a pseudo-terminal.</p></div></div>
+            <div class="api"><div><code>reset() -&gt; None</code></div><div><p>Terminates the current shell and starts a clean one.</p></div></div>
+            <div class="api"><div><code>run(command, timeout=None) -&gt; CommandResult</code></div><div><p>Runs a command in the persistent shell and waits for completion or a quiet period.</p></div></div>
+            <div class="api"><div><code>send_input(text, *, newline=True, timeout=None) -&gt; CommandResult</code></div><div><p>Sends input to the active command, optionally followed by Enter.</p></div></div>
+            <div class="api"><div><code>poll(timeout=None) -&gt; CommandResult</code></div><div><p>Waits for additional output without sending input.</p></div></div>
+            <div class="api"><div><code>close(grace_period=1.0) -&gt; None</code></div><div><p>Sends SIGHUP, waits briefly, force-kills if needed, and releases the PTY.</p></div></div>
+            <div class="api"><div><code>__enter__() / __exit__(...)</code></div><div><p>Supports context-manager use and closes the session on exit.</p></div></div>
+            <div class="api"><div><code>_validate_timeout(timeout)</code></div><div><p>Rejects negative quiet-period values.</p></div></div>
+            <div class="api"><div><code>_wait(timeout) -&gt; CommandResult</code></div><div><p>Reads output until completion, a recognized prompt, or an idle timeout.</p></div></div>
+            <div class="api"><div><code>_looks_like_prompt() -&gt; bool</code></div><div><p>Checks buffered output for common password/confirmation/input prompts.</p></div></div>
+            <div class="api"><div><code>_read_available(timeout) -&gt; bool</code></div><div><p>Reads available PTY bytes without blocking beyond the requested interval.</p></div></div>
+            <div class="api"><div><code>_extract_completion() -&gt; int | None</code></div><div><p>Detects the unique command completion marker and extracts the exit status.</p></div></div>
+            <div class="api"><div><code>_result(state, exit_code=None) -&gt; CommandResult</code></div><div><p>Normalizes ANSI escapes, line endings, and terminal backspaces into output text.</p></div></div>
+            <div class="api"><div><code>_write(text) -&gt; None</code></div><div><p>Writes encoded text fully to the PTY and reports closed-session errors.</p></div></div>
+            <div class="api"><div><code>_disable_echo() / _drain_startup() -&gt; None</code></div><div><p>Configures the PTY to avoid echoed input and discards startup noise.</p></div></div>
+            <div class="api"><div><code>_reap_nonblocking() / _process_exited() -&gt; bool</code></div><div><p>Checks and reaps the child process without waiting indefinitely.</p></div></div>
+            <div class="api"><div><code>_ensure_open() -&gt; None</code></div><div><p>Raises <code>ShellSessionClosed</code> when an operation requires a closed session.</p></div></div>
+          </div>
+        </div>
+      </details>
+
+      <details class="module">
+        <summary>
+          <span class="path">shell/persistent_shell_tools.py</span>
+          <span class="summary-note">LangChain wrappers for the shell HTTP API</span>
+        </summary>
+        <div class="module-body">
+          <div class="api-group">
+            <h4>Functions and nested tools</h4>
+            <div class="api"><div><code>_post(base_url, endpoint, payload, quiet_timeout) -&gt; dict[str, Any]</code></div><div><p>Sends JSON to an API endpoint, parses the response, and raises a descriptive error for HTTP failures or invalid response data.</p></div></div>
+            <div class="api"><div><code>create_shell_tools(base_url: str | Callable[[], str]) -&gt; list[BaseTool]</code></div><div><p>Creates shell tools bound to a fixed URL or a URL getter.</p></div></div>
+            <div class="api"><div><code>get_api_url() -&gt; str</code></div><div><p>Nested helper that resolves and validates the active API URL.</p></div></div>
+            <div class="api"><div><code>run_command(command, timeout=1.0)</code></div><div><p>Posts a command to <code>/run</code>.</p></div></div>
+            <div class="api"><div><code>poll_command(timeout=1.0)</code></div><div><p>Posts to <code>/poll</code> to collect more output.</p></div></div>
+            <div class="api"><div><code>send_command_input(text, newline=True, timeout=1.0)</code></div><div><p>Posts input to <code>/send_input</code>.</p></div></div>
+            <div class="api"><div><code>reset_shell()</code></div><div><p>Posts to <code>/reset</code> to stop the active command and start a fresh shell session.</p></div></div>
+          </div>
+        </div>
+      </details>
+
+      <details class="module">
+        <summary>
+          <span class="path">shell/persistent_shell_manager_tools.py</span>
+          <span class="summary-note">Starts the local shell API and binds its tools</span>
+        </summary>
+        <div class="module-body">
+          <div class="api-group">
+            <h4>Types and helpers</h4>
+            <div class="api"><div><code>_ActiveShell(shell, process, port)</code></div><div><p>Dataclass holding the active shell wrapper, API process, and selected port.</p></div></div>
+            <div class="api"><div><code>_is_port_available(port) -&gt; bool</code></div><div><p>Checks whether the loopback TCP port can be bound.</p></div></div>
+            <div class="api"><div><code>_is_healthy(base_url) -&gt; bool</code></div><div><p>Checks the shell API's <code>/health</code> endpoint.</p></div></div>
+            <div class="api"><div><code>_terminate_process(process) -&gt; None</code></div><div><p>Terminates a server process, escalating to kill after a timeout.</p></div></div>
+          </div>
+          <div class="api-group">
+            <h4>Factory and nested tools</h4>
+            <div class="api"><div><code>create_persistent_shell_manager_tools(python_runtime, port, path, startup_timeout) -&gt; list[BaseTool]</code></div><div><p>Creates shell-management tools; startup tries the requested port and up to four successors, then binds command tools to the healthy endpoint.</p></div></div>
+            <div class="api"><div><code>active_base_url() -&gt; str</code></div><div><p>Nested getter returning the running API URL or raising if no shell is active.</p></div></div>
+            <div class="api"><div><code>start_persistent_terminal()</code></div><div><p>Creates the generated API script, starts its server, waits for health, and reports the active endpoint.</p></div></div>
+            <div class="api"><div><code>stop_persistent_terminal()</code></div><div><p>Stops the API process and deletes its shell instance script.</p></div></div>
+          </div>
+        </div>
+      </details>
+
+      <details class="module">
+        <summary>
+          <span class="path">shell/create_shell_persistent_fastapi_script.py</span>
+          <span class="summary-note">Creates and launches the shell API process</span>
+        </summary>
+        <div class="module-body">
+          <div class="api-group">
+            <h4>Class: Shell</h4>
+            <div class="api"><div><code>__init__(python_runtime_path, path, port)</code></div><div><p>Stores interpreter, generated script path, port, and process state.</p></div></div>
+            <div class="api"><div><code>create_shell_instance()</code></div><div><p>Reads <code>persistent_shell_api.txt</code>, substitutes the selected port, and writes the generated script.</p></div></div>
+            <div class="api"><div><code>launch() -&gt; subprocess.Popen[bytes]</code></div><div><p>Starts the generated API process with the project root on <code>PYTHONPATH</code>.</p></div></div>
+            <div class="api"><div><code>stop() -&gt; bool</code></div><div><p>Uses <code>fuser</code> to send SIGTERM to the process listening on this shell's port.</p></div></div>
+            <div class="api"><div><code>delete_shell_instance() -&gt; bool</code></div><div><p>Deletes the generated API script if it exists.</p></div></div>
+          </div>
+        </div>
+      </details>
+
+      <details class="module">
+        <summary>
+          <span class="path">shell/persistent_shell_api.txt</span>
+          <span class="summary-note">FastAPI source template, not an importable .py module</span>
+        </summary>
+        <div class="module-body">
+          <p>The shell manager writes this template to a temporary Python file after replacing <code>port_assignment</code>.</p>
+          <div class="api-group">
+            <h4>Request and response models</h4>
+            <div class="api"><div><code>RunRequest</code></div><div><p>Command text plus optional non-negative quiet timeout.</p></div></div>
+            <div class="api"><div><code>InputRequest</code></div><div><p>Input text, whether to append a newline, and optional timeout.</p></div></div>
+            <div class="api"><div><code>PollRequest</code></div><div><p>Optional quiet timeout for polling.</p></div></div>
+            <div class="api"><div><code>CommandResponse</code></div><div><p>Command output, current state, and optional exit code.</p></div></div>
+            <div class="api"><div><code>ResetResponse</code></div><div><p>Confirmation with status <code>reset</code>.</p></div></div>
+          </div>
+          <div class="api-group">
+            <h4>Lifecycle, handlers, and routes</h4>
+            <div class="api"><div><code>lifespan(app)</code></div><div><p>Creates the persistent shell and lock; closes the shell on API shutdown.</p></div></div>
+            <div class="api"><div><code>handle_invalid_operation(request, exc)</code></div><div><p>Maps invalid shell state transitions to HTTP 409.</p></div></div>
+            <div class="api"><div><code>handle_closed_session(request, exc)</code></div><div><p>Maps closed shell sessions to HTTP 503.</p></div></div>
+            <div class="api"><div><code>_response(result)</code></div><div><p>Converts a <code>CommandResult</code> to the API response model.</p></div></div>
+            <div class="api"><div><code>health()</code>, <code>run(payload, request)</code>, <code>send_input(payload, request)</code>, <code>poll(payload, request)</code>, <code>reset(request)</code></div><div><p>Implements <code>/health</code>, <code>/run</code>, <code>/send_input</code>, <code>/poll</code>, and <code>/reset</code>; state-changing shell operations are protected by a lock.</p></div></div>
+          </div>
+        </div>
+      </details>
+    </div>
+
+    <h2 class="section-title" id="browser">Browser UI</h2>
+    <div class="module-list">
+      <details class="module">
+        <summary>
+          <span class="path">web/app.js</span>
+          <span class="summary-note">Chat, thread history, activity trace, and memory UI</span>
+        </summary>
+        <div class="module-body">
+          <p>Uses the DOM and Fetch API to connect the browser interface to the FastAPI routes. Event listeners are registered in the module; the functions below are named helpers.</p>
+          <div class="api-group">
+            <h4>HTTP, threads, and messages</h4>
+            <div class="api"><div><code>request(path, options={})</code></div><div><p>Sends JSON requests, parses responses, and throws for non-success status codes.</p></div></div>
+            <div class="api"><div><code>threadName(threadId)</code></div><div><p>Creates a readable label for a thread ID.</p></div></div>
+            <div class="api"><div><code>setActiveThread(threadId)</code></div><div><p>Updates active thread state, local storage, label, and sidebar selection.</p></div></div>
+            <div class="api"><div><code>addMessage(role, text, options={})</code></div><div><p>Renders a user or assistant message, thinking state, error, or sanitized assistant HTML.</p></div></div>
+            <div class="api"><div><code>showMessages(messages)</code></div><div><p>Rebuilds the conversation view and renders stored activity events before assistant responses.</p></div></div>
+            <div class="api"><div><code>streamChat(threadId, message, onEvent)</code></div><div><p>Sends a chat request, parses SSE frames, forwards events, and returns the final answer.</p></div></div>
+            <div class="api"><div><code>loadThreads(query)</code></div><div><p>Loads or searches saved threads and draws the sidebar list.</p></div></div>
+            <div class="api"><div><code>openThread(threadId)</code></div><div><p>Activates a thread and loads its messages and trace events.</p></div></div>
+            <div class="api"><div><code>startNewConversation()</code></div><div><p>Creates a new UUID thread and clears the displayed messages.</p></div></div>
+            <div class="api"><div><code>initialize()</code></div><div><p>Loads threads on page startup and restores the remembered or most recent conversation.</p></div></div>
+          </div>
+          <div class="api-group">
+            <h4>Activity and memory UI</h4>
+            <div class="api"><div><code>formatTraceValue(value)</code></div><div><p>Formats event values for display in activity cards.</p></div></div>
+            <div class="api"><div><code>createActivityFeed() / addActivityCard(feed, title, initial)</code></div><div><p>Creates the collapsible activity region and its event cards.</p></div></div>
+            <div class="api"><div><code>renderTraceEvent(feed, event)</code></div><div><p>Renders AI, tool, retry, progress, and custom events; matches related events by run ID.</p></div></div>
+            <div class="api"><div><code>loadMemories(query)</code></div><div><p>Loads, searches, displays, and removes saved memories.</p></div></div>
+            <div class="api"><div><code>setListening(active, hint="")</code></div><div><p>Updates voice-dictation status, microphone control, and input hint.</p></div></div>
+            <div class="api"><div><code>SpeechRecognition handlers</code></div><div><p>Optional browser voice input: handles partial/final transcripts, errors, start/stop, or disables the button when unsupported.</p></div></div>
+          </div>
+          <p class="small" style="margin-top: 14px">
+            Anonymous event handlers connect chat submit, Enter-to-send, new
+            chat, thread search, memory management, and clear-thread actions.
+          </p>
+        </div>
+      </details>
+
+      <details class="module">
+        <summary>
+          <span class="path">web/index.html · web/styles.css</span>
+          <span class="summary-note">Page structure and visual styling</span>
+        </summary>
+        <div class="module-body">
+          <p><code>index.html</code> declares the chat sidebar, conversation area, composer, and saved-memory dialog; it loads <code>app.js</code> and <code>styles.css</code>. <code>styles.css</code> defines the responsive layout and component styles. Neither file declares Python-style classes or functions.</p>
+        </div>
+      </details>
+    </div>
+
+    <h2 class="section-title" id="supporting">Prompts and runtime files</h2>
+    <div class="module-list">
+      <details class="module">
+        <summary>
+          <span class="path">prompts/</span>
+          <span class="summary-note">Instructions loaded or referenced by agents</span>
+        </summary>
+        <div class="module-body">
+          <div class="api-group">
+            <h4>Prompt files</h4>
+            <div class="api"><div><code>master_agent_prompt.md</code></div><div><p>Master agent identity, user-facing response style, safe local execution, resource discovery, delegation, and memory-tool instructions.</p></div></div>
+            <div class="api"><div><code>execution_protocol.md</code></div><div><p>Guidance for local shell execution, repository work, and interpreting command output.</p></div></div>
+            <div class="api"><div><code>delegation_protocol.md</code></div><div><p>Rules for when and how the master agent delegates work to a child agent.</p></div></div>
+            <div class="api"><div><code>memory_protocol.md</code></div><div><p>Explains the SQLite memory model and use of long-term memory tools.</p></div></div>
+          </div>
+          <div class="api-group">
+            <h4>Runtime and project files</h4>
+            <div class="api"><div><code>.atmos/</code></div><div><p>Runtime storage: the SQLite database plus user-managed agents, skills, and playground resources.</p></div></div>
+            <div class="api"><div><code>requirements.txt</code></div><div><p>Python package dependencies for the app, LangChain agent, and web interface.</p></div></div>
+            <div class="api"><div><code>.env</code></div><div><p>Local environment configuration, including the model API key; it is not source code.</p></div></div>
+            <div class="api"><div><code>documents/*.html</code></div><div><p>Standalone architecture and module-reference documents; they have no runtime imports.</p></div></div>
+          </div>
+        </div>
+      </details>
+    </div>
+
+    <h2 class="section-title" id="legacy">Local legacy scripts</h2>
+    <div class="module-list">
+      <details class="module">
+        <summary>
+          <span class="path">archieved/</span>
+          <span class="summary-note">Ignored local directory; not tracked application source</span>
+        </summary>
+        <div class="module-body">
+          <div class="api-group">
+            <h4>archieved/run_master_agent.py</h4>
+            <div class="api"><div><code>run_query(agent, query, prior_messages=None)</code></div><div><p>Invokes a one-shot agent query and feeds raised errors back for limited recovery.</p></div></div>
+            <div class="api"><div><code>positive_int(value)</code></div><div><p>Argparse converter rejecting non-integer or non-positive values.</p></div></div>
+            <div class="api"><div><code>build_parser()</code></div><div><p>Defines CLI query, thread, database, model, history, debug, and maintenance arguments.</p></div></div>
+            <div class="api"><div><code>print_history(memory, thread_id, limit)</code></div><div><p>Prints recent saved user/assistant messages.</p></div></div>
+            <div class="api"><div><code>run_turn(agent, memory, thread_id, query, history_limit)</code></div><div><p>Loads history, invokes the agent, and saves the completed turn.</p></div></div>
+            <div class="api"><div><code>run_interactive(agent, memory, thread_id, history_limit, debug)</code></div><div><p>Runs an interactive loop with thread/history/memory maintenance commands.</p></div></div>
+            <div class="api"><div><code>main(argv=None)</code></div><div><p>Parses CLI options, supports history maintenance, initializes the model/agent, and cleans up the shell manager.</p></div></div>
+          </div>
+          <div class="api-group">
+            <h4>archieved/atmos_cli.py</h4>
+            <div class="api"><div><code>respond_to_query(messages, model="gpt-3.5-turbo")</code></div><div><p>Uses the legacy OpenAI ChatCompletion API to return a text response.</p></div></div>
+            <div class="api"><div><code>main()</code></div><div><p>Provides minimal one-shot or interactive text chat and optional in-memory session history.</p></div></div>
+          </div>
+        </div>
+      </details>
+    </div>
+
+    <footer>
+      This page describes the checked-in application modules plus the local
+      legacy directory explicitly marked above. The virtual environment,
+      generated shell API script, database contents, and Python cache files are
+      runtime artifacts rather than source modules.
+    </footer>
+  </main>
+</body>
+</html>

@@ -237,6 +237,9 @@ pyrightconfig.json
 *.wat
 *.xhtml
 
+# Keep the architecture documentation in version control.
+!documents/*.html
+
 # End of https://www.toptal.com/developers/gitignore/api/python,jupyternotebooks,visualstudiocode,git,web
 
 # These are runtime assets for the Atmos web interface.
