@@ -7,6 +7,7 @@ import asyncio
 import json
 import logging
 import os
+from contextvars import ContextVar
 from contextlib import asynccontextmanager
 from dataclasses import dataclass
 from pathlib import Path
@@ -296,7 +297,7 @@ async def lifespan(app: FastAPI):
         app.state.runtime = AgentRuntime(
             agent=create_master_agent(
                 model,
-                memory_tools=memory.create_tools(),
+                memory_tools=memory.create_tools(app.state.current_thread_id.get),
                 shell_tools=shell_tools,
                 additional_tools=create_progress_tools(),
             ),
@@ -325,6 +326,7 @@ def create_app(database_path: Path = DEFAULT_DATABASE) -> FastAPI:
         lifespan=lifespan,
     )
     app.state.database_path = database_path
+    app.state.current_thread_id = ContextVar("current_thread_id", default=None)
     app.add_middleware(
         TrustedHostMiddleware,
         allowed_hosts=["127.0.0.1", "localhost"],
@@ -400,37 +402,41 @@ def create_app(database_path: Path = DEFAULT_DATABASE) -> FastAPI:
         async def event_stream():
             trace: list[dict[str, Any]] = []
             async with runtime.request_lock:
-                history = runtime.memory.recent_messages(
-                    thread_id, limit=HISTORY_LIMIT
-                )
+                thread_id_token = request.app.state.current_thread_id.set(thread_id)
                 try:
-                    async for event in stream_agent_events(
-                        runtime.agent,
-                        message,
-                        history,
-                    ):
-                        if event["type"] == "final":
-                            event["html"] = render_markdown(event["answer"])
-                            runtime.memory.save_turn(
-                                thread_id,
-                                message,
-                                event["answer"],
-                                events=trace,
+                    history = runtime.memory.recent_messages(
+                        thread_id, limit=HISTORY_LIMIT
+                    )
+                    try:
+                        async for event in stream_agent_events(
+                            runtime.agent,
+                            message,
+                            history,
+                        ):
+                            if event["type"] == "final":
+                                event["html"] = render_markdown(event["answer"])
+                                runtime.memory.save_turn(
+                                    thread_id,
+                                    message,
+                                    event["answer"],
+                                    events=trace,
+                                )
+                                event["thread_id"] = thread_id
+                            elif event["type"] != "ai_delta":
+                                trace.append(event)
+                            yield f"data: {json.dumps(event, ensure_ascii=False)}\n\n"
+                    except Exception:
+                        logger.exception("Agent request failed")
+                        error = {
+                            "type": "error",
+                            "message": (
+                                "The agent could not complete the request. "
+                                "Check server logs."
                             )
-                            event["thread_id"] = thread_id
-                        elif event["type"] != "ai_delta":
-                            trace.append(event)
-                        yield f"data: {json.dumps(event, ensure_ascii=False)}\n\n"
-                except Exception:
-                    logger.exception("Agent request failed")
-                    error = {
-                        "type": "error",
-                        "message": (
-                            "The agent could not complete the request. "
-                            "Check server logs."
-                        ),
-                    }
-                    yield f"data: {json.dumps(error)}\n\n"
+                        }
+                        yield f"data: {json.dumps(error)}\n\n"
+                finally:
+                    request.app.state.current_thread_id.reset(thread_id_token)
 
         return StreamingResponse(
             event_stream(),

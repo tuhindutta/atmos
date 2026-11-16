@@ -5,6 +5,7 @@ from __future__ import annotations
 import json
 import re
 import sqlite3
+from collections.abc import Callable
 from contextlib import contextmanager
 from pathlib import Path
 from typing import Any, Iterator
@@ -304,7 +305,9 @@ class SQLiteMemory:
             for memory in self.list_memories(query, limit=limit)
         ]
 
-    def create_tools(self) -> list[BaseTool]:
+    def create_tools(
+        self, current_thread_id: Callable[[], str | None]
+    ) -> list[BaseTool]:
         @tool
         def remember_memory(content: str) -> str:
             """Save a durable, non-sensitive fact or preference for future tasks."""
@@ -318,7 +321,21 @@ class SQLiteMemory:
                 return "No matching long-term memories found."
             return "\n".join(f"- {memory}" for memory in memories)
 
-        return [remember_memory, search_memories]
+        @tool
+        def recent_messages_with_events_tool(limit: int = 20) -> str:
+            """Retrieve recent messages and recorded tool calls/results for this thread.
+
+            Use when asked what was said or which tools/actions were performed
+            earlier in this conversation. Consult the recorded events rather
+            than guessing.
+            """
+            thread_id = current_thread_id()
+            if thread_id is None:
+                raise RuntimeError("No active conversation thread.")
+            messages = self.recent_messages_with_events(thread_id, limit=limit)
+            return json.dumps(messages, ensure_ascii=False)
+
+        return [remember_memory, search_memories, recent_messages_with_events_tool]
 
 
 __all__ = ["SQLiteMemory"]
