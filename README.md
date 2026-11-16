@@ -10,10 +10,10 @@ focused work to a child agent.
 Replace the placeholder destinations with the published links to the HTML
 reference pages:
 
-- **Agent architecture:** [Open the diagram](TODO_AGENT_ARCHITECTURE_URL)
-- **Memory architecture:** [Open the diagram](TODO_MEMORY_ARCHITECTURE_URL)
-- **Tools architecture:** [Open the diagram](TODO_TOOLS_ARCHITECTURE_URL)
-- **Directory and module reference:** [Browse modules](TODO_MODULE_REFERENCE_URL)
+- [**Agent architecture**](https://tuhindutta.github.io/atmos/documents/agent-architecture.html)
+- [**Memory architecture**](https://tuhindutta.github.io/atmos/documents/memory-architecture.html)
+- [**Tools architecture**](https://tuhindutta.github.io/atmos/documents/tools-architecture.html)
+- [**Directory and module reference**](https://tuhindutta.github.io/atmos/documents/module-reference.html)
 
 ## Requirements
 
