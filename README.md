@@ -7,13 +7,11 @@ focused work to a child agent.
 
 ## Architecture and code references
 
-Replace the placeholder destinations with the published links to the HTML
-reference pages:
-
 - [**Agent architecture**](https://tuhindutta.github.io/atmos/documents/agent-architecture.html)
 - [**Memory architecture**](https://tuhindutta.github.io/atmos/documents/memory-architecture.html)
 - [**Tools architecture**](https://tuhindutta.github.io/atmos/documents/tools-architecture.html)
 - [**Directory and module reference**](https://tuhindutta.github.io/atmos/documents/module-reference.html)
+- [**GitHub**](https://github.com/tuhindutta/atmos/tree/main)
 
 ## Requirements
 
