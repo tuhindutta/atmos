@@ -51,6 +51,58 @@ server for this repository.
   Read required credentials from environment variables, document their names,
   and provide only safe placeholders in examples.
 
+## Registering an external MCP server
+
+Use this procedure when the user provides or asks to register an MCP server
+that is not implemented in this repository.
+
+1. Gather the following details before updating `.atmos/mcp.md`; ask focused
+   clarification questions for any required value that is missing:
+   - server name and purpose;
+   - transport (`stdio`, Streamable HTTP, SSE, or another supported transport);
+   - how to start or connect to it, including an exact command or URL;
+   - bind host and port if the server is network-accessible;
+   - authentication mode and required environment variable names;
+   - available tools, resources, and prompts;
+   - client configuration details, such as headers or arguments;
+   - setup, startup, usage, and shutdown instructions;
+   - a README or source link if one is supplied.
+2. Do not invent missing endpoints, ports, credentials, capabilities, or
+   authentication modes. Record unknown optional values as `N/A` and mark
+   genuinely unresolved required values as `TBD`, but do not register a server
+   until enough information is available to connect or start it.
+3. Never store secret values in `.atmos/mcp.md`, source files, or committed
+   configuration. Use environment variable names and safe placeholders only.
+4. Reuse an existing entry when the external server is already registered.
+   Update the entry instead of creating a duplicate. Add the entry under a
+   clearly labeled external-server section in `.atmos/mcp.md`.
+5. Preserve the registry format and include, for every external server:
+   name, purpose, status, provider or source, implementation location or
+   external status, transport, host and port where applicable, exact endpoint
+   or start command, client configuration, capabilities, required environment
+   variable names, setup notes, and the source or documentation link.
+
+Use this entry shape:
+
+```markdown
+## <Server name>
+
+- **Type:** External MCP
+- **Purpose:** ...
+- **Provider/source:** ...
+- **Implementation:** External; documentation: <URL or N/A>
+- **Transport:** ...
+- **Host:** ...
+- **Port:** ...
+- **Endpoint or start command:** ...
+- **Client configuration:** ...
+- **Tools:** ...
+- **Resources/prompts:** ...
+- **Configuration:** Required environment variables: `VAR_NAME`; no secret values.
+- **Setup/startup/shutdown:** ...
+- **Status:** Registered
+```
+
 ## Registry updates and usage documentation
 
 After creating or changing a server, update `<repo-root>/.atmos/mcp.md` in the same
