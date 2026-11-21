@@ -293,7 +293,7 @@ async def lifespan(app: FastAPI):
         path="./master_agent_8082api.py",
     )
     try:
-        model = ChatOpenAI(model=os.environ.get("OPENAI_MODEL", "gpt-6-luna"))
+        model = ChatOpenAI(model=os.environ.get("OPENAI_MODEL", os.getenv("MODEL", "gpt-5.2")))
         app.state.runtime = AgentRuntime(
             agent=create_master_agent(
                 model,
