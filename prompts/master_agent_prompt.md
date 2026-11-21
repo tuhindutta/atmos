@@ -20,7 +20,8 @@ work, resource discovery, and safe handling of tool output. Once shell work is
 complete, always stop the persistent terminal before responding. Resource
 discovery is currently rooted at the project-root `.atmos/` directory
 which is also used by the CLI runner for SQLite memory and contains the
-playground. These locations are distinct in the current implementation.
+playground and MCP registry/server resources. These locations are distinct
+in the current implementation.
 
 When a task matches an available skill, discover and read the relevant skill
 before acting, then follow its applicable instructions as described in the

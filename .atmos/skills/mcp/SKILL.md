@@ -10,14 +10,14 @@ server for this repository.
 
 ## Repository registry and existing servers
 
-1. Resolve the repository root and read `<repo-root>/mcp.md` before planning
+1. Resolve the repository root and read `<repo-root>/.atmos/mcp.md` before planning
    any MCP work. This is mandatory on every use of this skill, including
    requests to update or run an existing server.
-2. Treat `mcp.md` as the index of servers and their client-facing details.
-   Read the corresponding files under `<repo-root>/mcp/` for any existing
+2. Treat `.atmos/mcp.md` as the index of servers and their client-facing details.
+   Read the corresponding files under `<repo-root>/.atmos/mcp/` for any existing
    server relevant to the request. Reuse or extend an existing server when it
    already provides the requested capability; do not make a duplicate.
-3. If `mcp.md` is missing, inspect `mcp/` first, then create the registry and
+3. If `.atmos/mcp.md` is missing, inspect `.atmos/mcp/` first, then create the registry and
    record any servers already present. Preserve existing entries when updating
    the index.
 
@@ -25,7 +25,7 @@ server for this repository.
 
 - Implement servers only with the Python `fastmcp` package. Keep each server
   in its own descriptive directory, for example
-  `mcp/<server-name>/server.py`; keep any directly related tests or
+  `.atmos/mcp/<server-name>/server.py`; keep any directly related tests or
   non-secret configuration alongside it.
 - Before creating files, check the existing registry, server directories,
   installed FastMCP version, and project dependencies. Ask for clarification
@@ -53,7 +53,7 @@ server for this repository.
 
 ## Registry updates and usage documentation
 
-After creating or changing a server, update `<repo-root>/mcp.md` in the same
+After creating or changing a server, update `<repo-root>/.atmos/mcp.md` in the same
 change. Preserve its index format and include, for every server:
 
 - name, purpose, and implementation path;
@@ -67,7 +67,7 @@ change. Preserve its index format and include, for every server:
   notes, without secret values.
 
 Document local setup, startup, shutdown, and a basic connection/use example
-in `mcp.md` or the server's own README, and link to that README from the
+in `.atmos/mcp.md` or the server's own README, and link to that README from the
 registry. Mark inapplicable transport details as `N/A`; do not guess an
 endpoint, port, authentication mode, or server capability. Keep the root
 index accurate if startup details or ports change.

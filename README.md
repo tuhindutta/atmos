@@ -109,7 +109,7 @@ The browser UI uses these main endpoints:
 ├── web/                     # Browser interface (HTML, CSS, JavaScript)
 ├── prompts/                 # Agent prompt and execution/delegation/memory protocols
 ├── documents/               # Architecture diagrams and module reference
-├── .atmos/                  # Runtime SQLite database and user resources
+├── .atmos/                  # Runtime SQLite database, MCP servers/registry, and user resources
 ├── requirements.txt
 └── LICENSE
 ```

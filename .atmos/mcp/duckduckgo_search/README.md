@@ -11,7 +11,7 @@ to DuckDuckGo's service policies and rate limits.
 From the repository root:
 
 ```sh
-.venv/bin/python mcp/duckduckgo_search/server.py
+.venv/bin/python .atmos/mcp/duckduckgo_search/server.py
 ```
 
 The server uses Streamable HTTP, bound to loopback only:

@@ -8,6 +8,9 @@
 .atmos/skills/*
 !.atmos/skills/mcp/
 !.atmos/skills/mcp/SKILL.md
+!.atmos/mcp/
+!.atmos/mcp/**
+!.atmos/mcp.md
 *.ipynb
 archieved
 
