@@ -15,7 +15,7 @@ from shell.persistent_shell_manager_tools import (
 )
 
 
-ATMOS_DIRECTORY = Path(__file__).resolve().parent / ".atmos"
+# ATMOS_DIRECTORY = Path(__file__).resolve().parent / ".atmos"
 
 
 def sub_agent(model: str | BaseChatModel) -> BaseTool:
@@ -32,12 +32,12 @@ def sub_agent(model: str | BaseChatModel) -> BaseTool:
     ):
         """Create Atmos with shell and user-provided resource tools."""
 
-        for directory in (
-            ATMOS_DIRECTORY / "skills",
-            ATMOS_DIRECTORY / "agents",
-            ATMOS_DIRECTORY / "playground",
-        ):
-            directory.mkdir(parents=True, exist_ok=True)
+        # for directory in (
+        #     ATMOS_DIRECTORY / "skills",
+        #     ATMOS_DIRECTORY / "agents",
+        #     ATMOS_DIRECTORY / "playground",
+        # ):
+        #     directory.mkdir(parents=True, exist_ok=True)
 
         path: str = f"./{sub_agent_name}_sub_agent_{port}api.py"
 
@@ -47,11 +47,11 @@ def sub_agent(model: str | BaseChatModel) -> BaseTool:
             path=path,
             startup_timeout=startup_timeout,
         )
-        resource_tools = create_atmos_resource_tools(ATMOS_DIRECTORY)
+        # resource_tools = create_atmos_resource_tools(ATMOS_DIRECTORY)
 
         agent = create_agent(
             model=model,
-            tools=[*shell_tools, *resource_tools],
+            tools=[*shell_tools],
             name="Atmos",
             system_prompt=system_prompt,
         )
