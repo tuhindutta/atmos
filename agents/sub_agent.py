@@ -39,7 +39,7 @@ def sub_agent(model: str | BaseChatModel) -> BaseTool:
         # ):
         #     directory.mkdir(parents=True, exist_ok=True)
 
-        path: str = f"./{sub_agent_name}_sub_agent_{port}api.py"
+        path: str = f"./{sub_agent_name}_sub_agent_{port}api_shell.py"
 
         shell_tools = create_persistent_shell_manager_tools(
             python_runtime=python_runtime,

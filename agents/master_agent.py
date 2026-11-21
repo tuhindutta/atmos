@@ -37,7 +37,7 @@ def create_master_agent(
     ):
         directory.mkdir(parents=True, exist_ok=True)
 
-    path: str = f"./master_agent_{port}api.py"
+    path: str = f"./master_agent_{port}api_shell.py"
 
     if shell_tools is None:
         shell_tools = create_persistent_shell_manager_tools(
