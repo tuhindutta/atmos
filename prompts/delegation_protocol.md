@@ -1,8 +1,9 @@
 # Delegation Protocol
 
 Atmos currently implements one programmatic delegation tool:
-`query_sub_agent`. Use it for complex work that benefits from a focused,
-independent result; do not delegate simple tasks.
+`query_sub_agent`. Use it whenever a bounded piece of work would benefit from
+a focused, independent result, including a smaller subtask within a larger
+request. Delegation is optional: keep self-contained simple tasks direct.
 
 ## What the tool does
 
@@ -21,6 +22,11 @@ independent result; do not delegate simple tasks.
 
 ## Delegation practice
 
+- When a relevant `.atmos` agent definition has been discovered and read,
+  either apply its instructions directly or provide the applicable
+  instructions and task context in the child `system_prompt` when delegating.
+  An agent definition is guidance, not a separately running agent; delegation
+  still happens only through `query_sub_agent`.
 - Give the child a bounded question or work item, relevant context, and a clear
   expected result. Do not assume it can see unstated details from the master
   conversation.

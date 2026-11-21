@@ -2,6 +2,12 @@
 # Edit at https://www.toptal.com/developers/gitignore?templates=python,jupyternotebooks,visualstudiocode,git,web
 
 .atmos
+!.atmos/
+.atmos/*
+!.atmos/skills/
+.atmos/skills/*
+!.atmos/skills/mcp/
+!.atmos/skills/mcp/SKILL.md
 *.ipynb
 archieved
 
